@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result | TruthSight</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: #16161f;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --border-color: #2a2a3a;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --success-border: rgba(16, 185, 129, 0.3);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --danger-border: rgba(239, 68, 68, 0.3);
+            --warning: #f59e0b;
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Grid Pattern Overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .result-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .result-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .filename {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Main Result Display */
+        .main-result {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .main-result.real {
+            background: var(--success-bg);
+            border: 2px solid var(--success-border);
+        }
+
+        .main-result.fake {
+            background: var(--danger-bg);
+            border: 2px solid var(--danger-border);
+        }
+
+        .result-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            animation: pulse 2s infinite;
+        }
+
+        .main-result.real .result-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .main-result.fake .result-icon {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .result-label {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-result.real .result-label {
+            color: var(--success);
+        }
+
+        .main-result.fake .result-label {
+            color: var(--danger);
+        }
+
+        .result-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Confidence Meter */
+        .confidence-section {
+            margin-bottom: 2rem;
+        }
+
+        .confidence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .confidence-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .confidence-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .main-result.real .confidence-value {
+            color: var(--success);
+        }
+
+        .main-result.fake .confidence-value {
+            color: var(--danger);
+        }
+
+        .confidence-bar {
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .main-result.real .confidence-fill {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .main-result.fake .confidence-fill {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            color: var(--accent-primary);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Prediction Breakdown */
+        .prediction-breakdown {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-header {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breakdown-bar {
+            height: 30px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .breakdown-fake {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            transition: width 1s ease;
+        }
+
+        .breakdown-real {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            transition: width 1s ease;
+        }
+
+        .breakdown-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.fake {
+            background: var(--danger);
+        }
+
+        .legend-dot.real {
+            background: var(--success);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .action-btn.secondary:hover {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Error State */
+        .error-container {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--danger-bg);
+            border: 2px solid var(--danger-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+            color: var(--danger);
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Enhancement Badge */
+        .enhancement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            margin-top: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+
+            .container {
+                padding: 7rem 1rem 3rem;
+            }
+
+            .result-card {
+                padding: 2rem;
+            }
+
+            .main-result {
+                padding: 2rem 1rem;
+            }
+
+            .result-label {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <span>Truth<span class="gradient-text">Sight</span></span>
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="result-card">
+            {% if error %}
+            <!-- Error State -->
+            <div class="error-container">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="error-title">Analysis Failed</h2>
+                <p class="error-message">{{ error }}</p>
+                {% if filename %}
+                <p class="filename">
+                    <i class="fas fa-video"></i>
+                    {{ filename }}
+                </p>
+                {% endif %}
+                <div class="action-buttons" style="margin-top: 2rem;">
+                    <a href="/" class="action-btn primary">
+                        <i class="fas fa-redo"></i>
+                        Try Again
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Success State -->
+            <div class="result-header">
+                <h1>Analysis Complete</h1>
+                <p class="filename">
+                    <i class="fas fa-video"></i>
+                    {{ filename }}
+                </p>
+            </div>
+
+            <!-- Main Result -->
+            <div class="main-result {{ 'real' if result.label == 'REAL' else 'fake' }}">
+                <div class="result-icon">
+                    {% if result.label == 'REAL' %}
+                    <i class="fas fa-check-circle"></i>
+                    {% else %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="result-label">{{ result.label }}</div>
+                <p class="result-description">
+                    {% if result.label == 'REAL' %}
+                    This video appears to be authentic and unmanipulated.
+                    {% else %}
+                    This video shows signs of digital manipulation or AI generation.
+                    {% endif %}
+                </p>
+
+                <!-- Confidence Meter -->
+                <div class="confidence-section" style="margin-top: 2rem;">
+                    <div class="confidence-header">
+                        <span class="confidence-label">Confidence Level</span>
+                        <span class="confidence-value">{{ result.confidence }}%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ result.confidence }}%"></div>
+                    </div>
+                </div>
+
+                {% if result.enhancement_enabled %}
+                <div class="enhancement-badge">
+                    <i class="fas fa-magic"></i>
+                    Enhanced Analysis Enabled
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="stat-value">{{ result.frames_processed }}</div>
+                    <div class="stat-label">Frames Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="stat-value">{{ result.total_faces_analyzed }}</div>
+                    <div class="stat-label">Faces Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value">{{ result.video_duration }}s</div>
+                    <div class="stat-label">Video Duration</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="stat-value">{{ result.fake_predictions + result.real_predictions }}</div>
+                    <div class="stat-label">Total Predictions</div>
+                </div>
+            </div>
+
+            <!-- Prediction Breakdown -->
+            <div class="prediction-breakdown">
+                <div class="breakdown-header">
+                    <i class="fas fa-chart-bar"></i>
+                    Prediction Distribution
+                </div>
+                {% set total = result.fake_predictions + result.real_predictions %}
+                {% set fake_percent = (result.fake_predictions / total * 100) if total > 0 else 0 %}
+                {% set real_percent = (result.real_predictions / total * 100) if total > 0 else 0 %}
+                <div class="breakdown-bar">
+                    <div class="breakdown-fake" style="width: {{ fake_percent }}%">
+                        {% if fake_percent > 15 %}{{ result.fake_predictions }}{% endif %}
+                    </div>
+                    <div class="breakdown-real" style="width: {{ real_percent }}%">
+                        {% if real_percent > 15 %}{{ result.real_predictions }}{% endif %}
+                    </div>
+                </div>
+                <div class="breakdown-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot fake"></div>
+                        <span>Fake ({{ result.fake_predictions }})</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot real"></div>
+                        <span>Real ({{ result.real_predictions }})</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/" class="action-btn primary">
+                    <i class="fas fa-plus"></i>
+                    Analyze Another Video
+                </a>
+                <button class="action-btn secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Print Report
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 TruthSight. Built with AI for a safer digital world.</p>
+    </footer>
+</body>
+</html>
